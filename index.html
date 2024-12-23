@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management Dashboard</title>
+    <!-- Modern CSS Framework -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f8ff, #e3f2fd);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header,
+        .footer {
+            background-color: #008080; /* Teal Color */
+            color: white;
+        }
+
+        .header {
+            padding: 1rem 0;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .form-hidden {
+            display: none;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            border-radius: 50px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #004d40;
+            transform: scale(1.05);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        #event-list,
+        #attendee-list,
+        #task-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .list-item {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+            width: calc(33.33% - 1rem);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .list-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar {
+            margin-bottom: 1rem;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-success {
+            background-color: #004d40;
+            border-radius: 25px;
+        }
+
+        .btn-success:hover {
+            background-color: #00695c;
+        }
+
+        h4 {
+            color: #00796b;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header text-center">
+        <h1>Event Management Dashboard</h1>
+        <nav>
+            <a href="#home" class="btn btn-link text-white" onclick="showPage('home')" aria-label="Home">Home</a>
+            <a href="#events" class="btn btn-link text-white" onclick="showPage('events-page')" aria-label="Events">Events</a>
+            <a href="#attendees" class="btn btn-link text-white" onclick="showPage('attendees-page')" aria-label="Attendees">Attendees</a>
+            <a href="#tasks" class="btn btn-link text-white" onclick="showPage('tasks-page')" aria-label="Tasks">Tasks</a>
+        </nav>
+    </header>
+
+    <main class="container my-5">
+        <!-- Home Section -->
+        <section id="home" class="page active">
+            <div class="text-center mb-4">
+                <h2>Welcome to the Event Management Dashboard</h2>
+                <p>Manage your events, attendees, and tasks efficiently.</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card p-3">
+                        <h3>Events</h3>
+                        <p>Create, edit, and manage your events.</p>
+                        <button class="btn btn-success" onclick="showPage('events-page')">Manage Events</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3">
+                        <h3>Attendees</h3>
+                        <p>Add and manage your attendees for events.</p>
+                        <button class="btn btn-success" onclick="showPage('attendees-page')">Manage Attendees</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3">
+                        <h3>Tasks</h3>
+                        <p>Track and update the progress of your tasks.</p>
+                        <button class="btn btn-success" onclick="showPage('tasks-page')">Manage Tasks</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Events Section -->
+        <section id="events-page" class="page">
+            <h2>Manage Events</h2>
+            <input type="text" class="form-control search-bar" id="event-search" placeholder="Search Events"
+                onkeyup="filterList('event-list', this.value)">
+            <button class="btn btn-success my-3" onclick="toggleForm('event-form')">Add Event</button>
+            <form id="event-form" class="form-hidden" onsubmit="addEvent(event)">
+                <div class="mb-3">
+                    <label for="event-name" class="form-label">Event Name</label>
+                    <input type="text" id="event-name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="event-description" class="form-label">Description</label>
+                    <textarea id="event-description" class="form-control" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="event-location" class="form-label">Location</label>
+                    <input type="text" id="event-location" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="event-date" class="form-label">Date</label>
+                    <input type="date" id="event-date" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Event</button>
+            </form>
+            <div id="event-list" class="row mt-4"></div>
+        </section>
+
+        <!-- Attendees Section -->
+        <section id="attendees-page" class="page">
+            <h2>Manage Attendees</h2>
+            <input type="text" class="form-control search-bar" id="attendee-search" placeholder="Search Attendees"
+                onkeyup="filterList('attendee-list', this.value)">
+            <button class="btn btn-success my-3" onclick="toggleForm('attendee-form')">Add Attendee</button>
+            <form id="attendee-form" class="form-hidden" onsubmit="addAttendee(event)">
+                <div class="mb-3">
+                    <label for="attendee-name" class="form-label">Attendee Name</label>
+                    <input type="text" id="attendee-name" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Attendee</button>
+            </form>
+            <div id="attendee-list" class="row mt-4"></div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section id="tasks-page" class="page">
+            <h2>Manage Tasks</h2>
+            <input type="text" class="form-control search-bar" id="task-search" placeholder="Search Tasks"
+                onkeyup="filterList('task-list', this.value)">
+            <button class="btn btn-success my-3" onclick="toggleForm('task-form')">Add Task</button>
+            <form id="task-form" class="form-hidden" onsubmit="addTask(event)">
+                <div class="mb-3">
+                    <label for="task-name" class="form-label">Task Name</label>
+                    <input type="text" id="task-name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="task-deadline" class="form-label">Deadline</label>
+                    <input type="date" id="task-deadline" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="task-status" class="form-label">Status</label>
+                    <select id="task-status" class="form-select" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Task</button>
+            </form>
+            <div id="task-list" class="row mt-4"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Event Management Dashboard. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const events = JSON.parse(localStorage.getItem('events')) || [];
+        const attendees = JSON.parse(localStorage.getItem('attendees')) || [];
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function toggleForm(formId) {
+            const form = document.getElementById(formId);
+            form.classList.toggle('form-hidden');
+        }
+
+        function saveToLocalStorage(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        function renderList(listId, items, formatter) {
+            const listElement = document.getElementById(listId);
+            listElement.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('list-item');
+                div.innerHTML = formatter(item);
+                listElement.appendChild(div);
+            });
+        }
+
+        function addEvent(e) {
+            e.preventDefault();
+            const event = {
+                name: document.getElementById('event-name').value,
+                description: document.getElementById('event-description').value,
+                location: document.getElementById('event-location').value,
+                date: document.getElementById('event-date').value,
+            };
+            events.push(event);
+            saveToLocalStorage('events', events);
+            renderEvents();
+            e.target.reset();
+        }
+
+        function renderEvents() {
+            renderList('event-list', events, event => `
+                <h4>${event.name}</h4>
+                <p>${event.description}</p>
+                <p>${event.location}</p>
+                <p>${event.date}</p>
+            `);
+        }
+
+        function addAttendee(e) {
+            e.preventDefault();
+            const attendee = { name: document.getElementById('attendee-name').value };
+            attendees.push(attendee);
+            saveToLocalStorage('attendees', attendees);
+            renderAttendees();
+            e.target.reset();
+        }
+
+        function renderAttendees() {
+            renderList('attendee-list', attendees, attendee => `<h4>${attendee.name}</h4>`);
+        }
+
+        function addTask(e) {
+            e.preventDefault();
+            const task = {
+                name: document.getElementById('task-name').value,
+                deadline: document.getElementById('task-deadline').value,
+                status: document.getElementById('task-status').value,
+            };
+            tasks.push(task);
+            saveToLocalStorage('tasks', tasks);
+            renderTasks();
+            e.target.reset();
+        }
+
+        function renderTasks() {
+            renderList('task-list', tasks, task => `
+                <h4>${task.name}</h4>
+                <p>Deadline: ${task.deadline}</p>
+                <p>Status: ${task.status}</p>
+            `);
+        }
+
+        function filterList(listId, query) {
+            const items = document.querySelectorAll(`#${listId} .list-item`);
+            items.forEach(item => {
+                item.style.display = item.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+            });
+        }
+
+        // Initial Rendering
+        renderEvents();
+        renderAttendees();
+        renderTasks();
+    </script>
+</body>
+
+</html>
